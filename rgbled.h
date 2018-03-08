@@ -59,6 +59,35 @@
 #define WARCOMEB_RGBLED_LIBRARY_VERSION_bug 0
 #define WARCOMEB_RGBLED_LIBRARY_TIME        0
 
+typedef enum
+{
+    RGBLEDTYPE_ANODE_COMMON,
+    RGBLEDTYPE_KATODE_COMMON,
+} RgbLed_Type;
+
+typedef struct _RgbLed_Device
+{
+    Ftm_DeviceHandle timerDevice;
+
+    Ftm_Pins redPin;
+    Ftm_Channels redChannel;
+
+    Ftm_Pins greenPin;
+    Ftm_Channels greenChannel;
+
+    Ftm_Pins bluePin;
+    Ftm_Channels blueChannel;
+
+    RgbLed_Type type;
+
+    uint16_t frequency;
+
+} RgbLed_Device;
+
+/**
+ *
+ */
+void RgbLed_init (RgbLed_Device* dev);
 
 #if (WARCOMEB_RGBLED_DEBUG == 1)
 

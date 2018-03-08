@@ -27,6 +27,8 @@
 
 #include "rgbled.h"
 
+#define RGBLED_FREQUENCY_DEFAULT     1000 // [Hz]
+
 #if (WARCOMEB_RGBLED_DEBUG == 1)
 
 /**************************** CLI Section *************************************/

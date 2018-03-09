@@ -59,15 +59,28 @@
 #define WARCOMEB_RGBLED_LIBRARY_VERSION_bug 0
 #define WARCOMEB_RGBLED_LIBRARY_TIME        0
 
+
+#define WARCOMEB_RGBLED_FREQUENCY           1000 // [Hz]
 typedef enum
 {
     RGBLEDTYPE_ANODE_COMMON,
     RGBLEDTYPE_KATODE_COMMON,
 } RgbLed_Type;
 
+typedef enum _RgbLed_Errors
+{
+    /**< No Errors */
+    RGBLEDERRORS_OK                    = 0x00,
+
+    RGBLEDERRORS_TIMER_NOT_INIT,
+    RGBLEDERRORS_WRONG_VALUE,
+
+} RgbLed_Errors;
+
 typedef struct _RgbLed_Device
 {
     Ftm_DeviceHandle timerDevice;
+    bool timerInit;
 
     Ftm_Pins redPin;
     Ftm_Channels redChannel;
@@ -80,16 +93,34 @@ typedef struct _RgbLed_Device
 
     RgbLed_Type type;
 
-    uint16_t frequency;
-
 } RgbLed_Device;
 
 /**
  *
+ * @param dev
+ * @return
  */
-void RgbLed_init (RgbLed_Device* dev);
+RgbLed_Errors RgbLed_init (RgbLed_Device* dev);
+
+/**
+ * @param dev
+ * @param red
+ * @param green
+ * @param blue
+ * @return
+ */
+RgbLed_Errors RgbLed_setColor (RgbLed_Device* dev,
+                               uint8_t red,
+                               uint8_t green,
+                               uint8_t blue);
 
 #if (WARCOMEB_RGBLED_DEBUG == 1)
+
+#include "cli/cli.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void RgbLed_cliParser(void* dev, int argc, char argv[][LOCCIONI_CLI_BUFFER_SIZE]);
 

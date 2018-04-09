@@ -32,6 +32,11 @@
  *
  * @li v1.0.0 of 2018/03/xx - Initial version
  *
+ * @section mustdo Mondatory define
+ * In this section we explain the define that the user must define.
+ * @li WARCOMEB_RGBLED_TIMER this define serves to indicate if the timer is
+ * used or not.
+ *
  * @section library External Library
  *
  * The library use the following external library
@@ -46,9 +51,6 @@
 #ifndef __WARCOMEB_RGBLED_H
 #define __WARCOMEB_RGBLED_H
 
-/**
- * In this file you must define the...
- */
 #ifndef __NO_BOARD_H
 #include "board.h"
 #endif
@@ -59,8 +61,12 @@
 #define WARCOMEB_RGBLED_LIBRARY_VERSION_bug 0
 #define WARCOMEB_RGBLED_LIBRARY_TIME        0
 
-
 #define WARCOMEB_RGBLED_FREQUENCY           1000 // [Hz]
+
+#if !defined(WARCOMEB_RGBLED_TIMER)
+#error "You must define a device type to manage leds!"
+#endif
+
 typedef enum
 {
     RGBLEDTYPE_ANODE_COMMON,
@@ -77,8 +83,13 @@ typedef enum _RgbLed_Errors
 
 } RgbLed_Errors;
 
+/**
+ *
+ */
 typedef struct _RgbLed_Device
 {
+#if (WARCOMEB_RGBLED_TIMER > 0)
+
     Ftm_DeviceHandle timerDevice;
     bool timerInit;
 
@@ -90,6 +101,14 @@ typedef struct _RgbLed_Device
 
     Ftm_Pins bluePin;
     Ftm_Channels blueChannel;
+
+#else
+
+    Gpio_Pins redPin;
+    Gpio_Pins greenPin;
+    Gpio_Pins bluePin;
+
+#endif
 
     RgbLed_Type type;
 

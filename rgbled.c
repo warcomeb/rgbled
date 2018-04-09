@@ -30,10 +30,13 @@
 RgbLed_Errors RgbLed_init (RgbLed_Device* dev)
 {
     uint16_t duty = 0;
-    dev->timerInit = FALSE;
 
     // Set to OFF all leds
     duty = (dev->type == RGBLEDTYPE_KATODE_COMMON) ? 0 : 32768;
+
+#if (WARCOMEB_RGBLED_TIMER > 0)
+
+    dev->timerInit = FALSE;
 
     if (Ftm_addPwmPin(dev->timerDevice,dev->redPin,duty) == ERRORS_FTM_DEVICE_NOT_INIT)
         return RGBLEDERRORS_TIMER_NOT_INIT;
@@ -45,6 +48,28 @@ RgbLed_Errors RgbLed_init (RgbLed_Device* dev)
         return RGBLEDERRORS_TIMER_NOT_INIT;
 
     dev->timerInit = TRUE;
+
+#else
+
+    Gpio_config(dev->redPin,GPIO_PINS_OUTPUT);
+    Gpio_config(dev->greenPin,GPIO_PINS_OUTPUT);
+    Gpio_config(dev->bluePin,GPIO_PINS_OUTPUT);
+
+    if (duty == 0)
+    {
+        Gpio_clear(dev->redPin);
+        Gpio_clear(dev->greenPin);
+        Gpio_clear(dev->bluePin);
+    }
+    else
+    {
+        Gpio_set(dev->redPin);
+        Gpio_set(dev->greenPin);
+        Gpio_set(dev->bluePin);
+    }
+
+#endif
+
     return RGBLEDERRORS_OK;
 }
 
@@ -55,6 +80,8 @@ RgbLed_Errors RgbLed_setColor (RgbLed_Device* dev,
 {
     if ((red > 100) || (green > 100) || (blue > 100))
         return RGBLEDERRORS_WRONG_VALUE;
+
+#if (WARCOMEB_RGBLED_TIMER > 0)
 
     // Change value when the led is common anode
     if (dev->type == RGBLEDTYPE_ANODE_COMMON)
@@ -73,6 +100,32 @@ RgbLed_Errors RgbLed_setColor (RgbLed_Device* dev,
     Ftm_setPwm(dev->timerDevice,dev->redChannel,redDuty);
     Ftm_setPwm(dev->timerDevice,dev->greenChannel,greenDuty);
     Ftm_setPwm(dev->timerDevice,dev->blueChannel,blueDuty);
+
+#else
+
+    if (dev->type == RGBLEDTYPE_ANODE_COMMON)
+    {
+        red = (red > 0) ? 0 : 1;
+        green = (green > 0) ? 0 : 1;
+        blue = (blue > 0) ? 0 : 1;
+    }
+
+    if (red > 0)
+        Gpio_set(dev->redPin);
+    else
+        Gpio_clear(dev->redPin);
+
+    if (green > 0)
+        Gpio_set(dev->greenPin);
+    else
+        Gpio_clear(dev->greenPin);
+
+    if (blue > 0)
+        Gpio_set(dev->bluePin);
+    else
+        Gpio_clear(dev->bluePin);
+
+#endif
 
     return RGBLEDERRORS_OK;
 }
